@@ -149,7 +149,7 @@ RadReason/
   title  = {RadReason: Incentivizing Medical Visual Diagnostic Reasoning via GRPO},
   author = {Zhu, Xiaoqian},
   year   = {2026},
-  howpublished = {\url{https://github.com/<your-username>/RadReason}}
+  howpublished = {\url{https://github.com/Techlinyuan/RadReason}}
 }
 ```
 
