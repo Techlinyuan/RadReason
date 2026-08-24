@@ -1,0 +1,17 @@
+# Core (versions tested on the dev machine; newer minor versions generally fine)
+torch>=2.4
+transformers>=4.57
+peft>=0.13
+datasets>=2.20
+accelerate>=0.34
+pillow>=10.0
+numpy>=1.24
+matplotlib>=3.7
+pyyaml>=6.0
+tqdm>=4.66
+# Optional: experiment logging
+wandb>=0.17
+# Deployment (see deploy/requirements.txt for the serving-only subset)
+fastapi>=0.110
+uvicorn>=0.29
+python-multipart>=0.0.9

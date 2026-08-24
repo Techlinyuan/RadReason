@@ -1,0 +1,23 @@
+{
+  "model": "G:\\XiaoqianZhu\\models\\Qwen\\Qwen3-VL-4B-Instruct",
+  "adapter": "outputs/grpo/lora_adapter",
+  "n": 400,
+  "report": {
+    "all": {
+      "n": 400,
+      "acc": 0.475
+    },
+    "ds:slake": {
+      "n": 400,
+      "acc": 0.475
+    },
+    "qt:closed": {
+      "n": 363,
+      "acc": 0.5234
+    },
+    "qt:open": {
+      "n": 37,
+      "acc": 0.0
+    }
+  }
+}

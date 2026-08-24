@@ -1,0 +1,30 @@
+# data & model artifacts (do NOT commit large binaries)
+data/
+outputs/
+# results/*.json  (eval reports are small and worth committing)
+models/
+*.pt
+*.bin
+*.safetensors
+lora_adapter/
+wandb/
+hf/
+tmp/
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+.venv/
+env/
+
+# os / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# keep folder placeholders
+!assets/.gitkeep
+!results/.gitkeep

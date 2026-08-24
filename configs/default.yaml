@@ -1,0 +1,35 @@
+# RadReason default configuration
+model:
+  path: "G:/XiaoqianZhu/models/Qwen/Qwen3-VL-4B-Instruct"   # read-only base weights (override via --model)
+  dtype: bfloat16
+  attn_implementation: sdpa
+  max_image_side: 512            # downscale long side before feeding the ViT (memory)
+
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.0
+  target_modules: ["q_proj", "k_proj", "v_proj", "o_proj"]
+
+grpo:
+  steps: 300
+  group: 8                       # G: completions sampled per prompt
+  prompts_per_step: 2            # distinct (image, question) items per optimizer step
+  lr: 2.0e-5
+  max_new_tokens: 256
+  temperature: 1.1
+  top_p: 0.95
+  grad_clip: 1.0
+  kl_coef: 0.0                   # 0 = pure GRPO advantage (no KL-to-ref); set >0 to add KL regularization
+
+reward:
+  format_bonus: 0.5             # awarded for well-formed <think>...</think><answer>...</answer>
+  correct: 1.0                  # exact-match accuracy reward
+  wrong: 0.0
+
+data:
+  datasets: ["vqa-rad", "slake"]
+  closed_only_for_train: true    # GRPO trains on verifiable (closed) answers
+  max_train: 2000
+  max_eval: 800
+  seed: 0
