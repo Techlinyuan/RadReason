@@ -35,7 +35,8 @@ The trainer is a **single-GPU, LoRA, no-vLLM / no-FSDP** implementation (rollout
               └──────────────────────────────────────────────────────────────────────────┘
 ```
 
-- **Base model**: `Qwen3-VL-4B-Instruct` (frozen weights + LoRA adapters, ~0.1% trainable params).
+- **Base model**: `Qwen3-VL-4B-Instruct` (frozen weights + LoRA adapters: `r=16, alpha=32` on
+  `q/k/v/o_proj`, **11.8 M trainable params = 0.27%** of the model).
 - **Algorithm**: GRPO (critic-free; group-normalized advantages), rollouts by sampling `G` completions per prompt.
 - **Reward**: verifiable — exact-match accuracy on closed-form medical VQA + a format bonus for well-formed
   `<think>/<answer>` structure. No reward model, no labeled reasoning traces.
@@ -78,12 +79,24 @@ reward variance, up to `--max-prompt-tries`) fixed it:
 | prompt groups discarded as uninformative | 0 | 439 |
 
 Same compute budget, same reward function — the only change is *which prompts get to contribute a
-gradient*, and it turns a +0.6 pp result into +5.0 pp on SLAKE.
+gradient*. **Both datasets amplify by ≈2.5×**: SLAKE **+1.93 → +4.96 pp** (2.57×) and
+VQA-RAD **+0.58 → +1.44 pp** (2.48×). Two independent test sets reproducing the same multiplier is
+stronger evidence than either single number.
 
 <p align="center"><img src="assets/training_curves.png" width="85%"><br>
 <i>GRPO training: mean group reward, train-time accuracy, and policy-gradient loss over 200 steps.</i></p>
 
-Per-run reports are in `results/*.json`; qualitative reasoning samples in `results/samples_*.md`.
+Every number in the tables above is reproducible from the committed reports in `results/`:
+
+| Run | VQA-RAD | SLAKE |
+|---|---|---|
+| zero-shot | `base_vqarad.json` | `base_slake.json` |
+| GRPO vanilla | `grpo_v1_vqarad.json` | `grpo_slake.json` |
+| GRPO + dynamic sampling | `grpo_v2_vqarad.json` | `grpo_v2_slake.json` |
+
+Read `report["qt:closed"]["acc"]` in each file. Note that `qt:open` (free-form answers, scored by exact
+match) stays at 0.0–0.038 across all runs: this method targets **closed-set diagnostic accuracy**, and the
+generated `<think>` traces are *not* evaluated for factual correctness anywhere in this work.
 
 ## Installation
 
@@ -105,7 +118,9 @@ Downloads the datasets (via HF), unifies them to `{image, question, answer}`, ta
 
 ```bash
 python -m src.radreason.grpo_train --data data/train.jsonl --model <path/to/Qwen3-VL-4B-Instruct> \
-       --out outputs/grpo --steps 300 --group 8 --lr 2e-5
+       --out outputs/grpo --steps 200 --group 8 --lr 2e-5                      # vanilla
+python -m src.radreason.grpo_train --data data/train.jsonl --model <path/to/Qwen3-VL-4B-Instruct> \
+       --out outputs/grpo_v2 --steps 200 --group 8 --lr 2e-5 --dynamic-sampling  # + dynamic sampling
 ```
 Saves the LoRA adapter to `outputs/grpo/lora_adapter`, training curves and `metrics.json`.
 
